@@ -1,8 +1,6 @@
 package com.musinsa.controller
 
-import com.musinsa.common.toPriceString
 import com.musinsa.domain.Category
-import com.musinsa.dto.CategoryLowestPriceDto
 import com.musinsa.dto.CategoryMinMaxResponse
 import com.musinsa.dto.LowestByCategoryResponse
 import com.musinsa.dto.SingleBrandLowestResponse
@@ -23,22 +21,9 @@ class PricingController(
      */
     @GetMapping("/lowest-by-category")
     fun getLowestByCategory(): LowestByCategoryResponse {
-        val result = pricingService.getLowestPerCategory()
-
-        val items = result.map { (category, pair) ->
-            CategoryLowestPriceDto(
-                카테고리 = category.name,
-                브랜드 = pair.first,
-                가격 = pair.second.toPriceString()
-            )
-        }
-
-        val total = result.values.sumOf { it.second }
-        return LowestByCategoryResponse(
-            items = items,
-            총액 = total.toString()
-        )
+        return pricingService.getLowestPerCategoryDto()
     }
+
 
     /**
      * 2. 단일 브랜드 전체 카테고리 최저가 조회

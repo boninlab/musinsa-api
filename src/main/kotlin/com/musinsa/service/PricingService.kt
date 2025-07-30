@@ -2,10 +2,7 @@ package com.musinsa.service
 
 import com.musinsa.common.toPriceString
 import com.musinsa.domain.Category
-import com.musinsa.dto.BrandPriceDto
-import com.musinsa.dto.CategoryMinMaxResponse
-import com.musinsa.dto.CategoryPriceInfoDto
-import com.musinsa.dto.SingleBrandLowestInfo
+import com.musinsa.dto.*
 import com.musinsa.repository.BrandProductRepository
 import com.musinsa.repository.BrandRepository
 import org.springframework.stereotype.Service
@@ -17,18 +14,34 @@ class PricingService(
 ) {
 
     /**
-     * 카테고리별 최저가 브랜드를 조회한다.
-     * 각 카테고리에 대해 가장 저렴한 상품을 가진 브랜드를 반환한다.
+     * 카테고리별 최저가 브랜드 목록과 총액을 조회한다.
+     * 각 카테고리에 대해 가장 저렴한 상품을 가진 브랜드를 찾아,
+     * 카테고리명, 브랜드명, 가격 정보를 포함한 리스트로 반환한다.
      */
-    fun getLowestPerCategory(): Map<Category, Pair<String, Int>> {
+    fun getLowestPerCategoryDto(): LowestByCategoryResponse {
         val allProducts = brandProductRepository.findAll()
-        return Category.entries.associateWith { category ->
-            allProducts.filter { it.category == category }
+
+        val items = Category.entries.map { category ->
+            val cheapest = allProducts.filter { it.category == category }
                 .minByOrNull { it.price }
-                ?.let { it.brand.name to it.price }
-                ?: ("없음" to 0)
+
+            CategoryLowestPriceDto(
+                카테고리 = category.name,
+                브랜드 = cheapest?.brand?.name ?: "없음",
+                가격 = (cheapest?.price ?: 0).toPriceString()
+            )
         }
+
+        val total = items.sumOf {
+            it.가격.replace(",", "").toInt()
+        }
+
+        return LowestByCategoryResponse(
+            items = items,
+            총액 = total.toPriceString()
+        )
     }
+
 
     /**
      * 모든 카테고리를 포함한 단일 브랜드 중 최저가 브랜드를 조회한다.

@@ -1,14 +1,14 @@
 -- 브랜드 등록
-INSERT INTO brands (id, name)
-VALUES (1, 'A'),
-       (2, 'B'),
-       (3, 'C'),
-       (4, 'D'),
-       (5, 'E'),
-       (6, 'F'),
-       (7, 'G'),
-       (8, 'H'),
-       (9, 'I');
+INSERT INTO brands (name)
+VALUES ('A'),
+       ('B'),
+       ('C'),
+       ('D'),
+       ('E'),
+       ('F'),
+       ('G'),
+       ('H'),
+       ('I');
 
 -- 브랜드별 상품 가격 삽입
 INSERT INTO brand_products (brand_id, category, price)

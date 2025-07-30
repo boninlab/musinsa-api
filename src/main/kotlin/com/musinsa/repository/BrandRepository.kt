@@ -11,5 +11,6 @@ interface BrandRepository : JpaRepository<Brand, Long> {
     /**
      * 브랜드 이름으로 브랜드 조회
      */
+    fun existsByName(name: String): Boolean
     fun findByName(name: String): Brand?
 }

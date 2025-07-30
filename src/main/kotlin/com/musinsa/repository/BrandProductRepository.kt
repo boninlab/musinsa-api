@@ -1,5 +1,6 @@
 package com.musinsa.repository
 
+import com.musinsa.domain.Brand
 import com.musinsa.domain.BrandProduct
 import com.musinsa.domain.Category
 import org.springframework.data.jpa.repository.JpaRepository
@@ -13,4 +14,5 @@ interface BrandProductRepository : JpaRepository<BrandProduct, Long> {
      * 특정 카테고리 상품들 조회
      */
     fun findByCategory(category: Category): List<BrandProduct>
+    fun existsByBrandAndCategory(brand: Brand, category: Category): Boolean
 }

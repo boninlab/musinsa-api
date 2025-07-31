@@ -122,6 +122,30 @@ curl -G http://localhost:8080/api/pricing/min-max \
 
 ---
 
+## 테스트 실행 방법
+
+### 단위 테스트 & 통합 테스트 실행
+
+```bash
+./gradlew test
+```
+
+> `PricingServiceTest`, `PricingControllerIntegrationTest` 모두 실행됩니다.
+
+### 특정 테스트만 실행
+
+```bash
+./gradlew test --tests *PricingServiceTest
+```
+
+또는
+
+```bash
+./gradlew test --tests *IntegrationTest
+```
+
+---
+
 ## H2 콘솔 접속 방법
 
 ### 접속 주소
@@ -138,6 +162,6 @@ http://localhost:8080/h2-console
 
 Spring Boot에서 H2가 메모리 모드로 실행되기 때문에, 애플리케이션이 실행 중일 때만 접속 가능합니다.
 
-## 🗂 기타
+## 기타
 
 - 초기 데이터는 `src/main/resources/data.sql`에 정의됨

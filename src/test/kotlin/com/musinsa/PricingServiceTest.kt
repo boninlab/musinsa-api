@@ -26,14 +26,12 @@ class PricingServiceTest {
         val brand1 = Brand(name = "A")
         val brand2 = Brand(name = "B")
 
-        val products = listOf(
+        val cheapestProducts = listOf(
             BrandProduct(brand = brand1, category = Category.상의, price = 1000),
-            BrandProduct(brand = brand2, category = Category.상의, price = 1500),
-            BrandProduct(brand = brand1, category = Category.바지, price = 2000),
             BrandProduct(brand = brand2, category = Category.바지, price = 1000)
         )
 
-        every { productRepo.findAll() } returns products
+        every { productRepo.findCheapestProductPerCategory() } returns cheapestProducts
 
         val result = service.getLowestPerCategoryDto()
 
@@ -54,8 +52,14 @@ class PricingServiceTest {
             )
         }
 
-        every { brandRepo.findAll() } returns listOf(brand)
-        every { productRepo.findAll() } returns products
+        every {
+            productRepo.findCheapestBrandWithAllCategories(Category.entries.size)
+        } returns mapOf(
+            "brand_id" to brand.id,
+            "total_price" to products.sumOf { it.price }
+        )
+
+        every { productRepo.findAllByBrandId(brand.id) } returns products
 
         val result = service.getCheapestSingleBrandDto()
 

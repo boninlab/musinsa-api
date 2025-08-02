@@ -19,12 +19,11 @@ class PricingService(
      * 카테고리명, 브랜드명, 가격 정보를 포함한 리스트로 반환한다.
      */
     fun getLowestPerCategoryDto(): LowestByCategoryResponse {
-        val allProducts = brandProductRepository.findAll()
+        val cheapestProducts = brandProductRepository.findCheapestProductPerCategory()
+        val grouped = cheapestProducts.groupBy { it.category }
 
         val items = Category.entries.map { category ->
-            val cheapest = allProducts.filter { it.category == category }
-                .minByOrNull { it.price }
-
+            val cheapest = grouped[category]?.firstOrNull()
             CategoryLowestPriceDto(
                 카테고리 = category.name,
                 브랜드 = cheapest?.brand?.name ?: "없음",
@@ -48,29 +47,26 @@ class PricingService(
      * 해당 브랜드의 카테고리별 가격과 총액을 함께 반환한다.
      */
     fun getCheapestSingleBrandDto(): SingleBrandLowestInfo {
-        val allBrands = brandRepository.findAll()
-        val allProducts = brandProductRepository.findAll()
-
-        val brandTotalMap = allBrands.mapNotNull { brand ->
-            val products = allProducts.filter { it.brand == brand }
-            if (products.map { it.category }.toSet() == Category.entries.toSet()) {
-                val total = products.sumOf { it.price }
-                Triple(brand.name, total, products)
-            } else null
-        }
-
-        val cheapest = brandTotalMap.minByOrNull { it.second }
+        val categorySize = Category.entries.size
+        val cheapestBrandRow = brandProductRepository.findCheapestBrandWithAllCategories(categorySize)
             ?: throw IllegalStateException("조건을 만족하는 브랜드가 없습니다")
 
+        val brandId = (cheapestBrandRow["brand_id"] as Number).toLong()
+        val totalPrice = (cheapestBrandRow["total_price"] as Number).toInt()
+
+        val products = brandProductRepository.findAllByBrandId(brandId)
+
+        val brandName = products.firstOrNull()?.brand?.name ?: "Unknown"
+
         return SingleBrandLowestInfo(
-            브랜드 = cheapest.first,
-            카테고리 = cheapest.third.map {
+            브랜드 = brandName,
+            카테고리 = products.map {
                 CategoryPriceInfoDto(
                     카테고리 = it.category.name,
                     가격 = it.price.toPriceString()
                 )
             },
-            총액 = cheapest.second.toPriceString()
+            총액 = totalPrice.toPriceString()
         )
     }
 
